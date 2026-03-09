@@ -1,0 +1,101 @@
+{
+  "$schema": "video-spec-v1.json",
+  "title": "Building the Video Generator: Discovery Phase Explained",
+  "description": "A deep dive into the discovery process for the AgentFactory Video Generator project — stakeholder research, requirements gathering, and technology selection",
+  "videoType": "tutorial",
+  "duration": 180,
+  "targetAudience": "Project stakeholders, developers, students learning SDD",
+  "quality": "high",
+  "resolution": "1080p",
+  "outputFormat": "mp4",
+  "fps": 30,
+  "keyPoints": [
+    "Discovery Phase purpose: Understand the problem before building the solution",
+    "4 stakeholder groups interviewed: Marketing, DevRel, End Users, DevOps",
+    "Current process: 4-8 hours manual editing + 2-5 days review cycle",
+    "Target improvement: 80% reduction in production time",
+    "Market research: Evaluated Synthesia, Loom, Descript, chose Remotion",
+    "Technology stack: React-based, programmatic, version-control friendly",
+    "8 functional requirements and 5 non-functional requirements defined",
+    "Risk assessment: Technical and business risks identified and mitigated",
+    "12-week timeline: Discovery → Specification → Implementation → Launch"
+  ],
+  "script": {
+    "introduction": {
+      "hook": "How do you build a video generator that reduces production time by 80%? You start with discovery. Welcome to the Video Generator project — where Spec-Driven Development transforms video production.",
+      "duration": 20
+    },
+    "body": [
+      {
+        "title": "Discovery Purpose",
+        "content": "The Discovery Phase answers critical questions: What problem are we solving? Who are we solving it for? And what's the best approach? We spent 2 weeks on discovery before writing a single line of code.",
+        "visual": "SDD methodology flowchart",
+        "duration": 20
+      },
+      {
+        "title": "Stakeholder Research",
+        "content": "We interviewed 4 stakeholder groups: Marketing teams who need quick turnaround, Developer Relations who create technical content, end users who watch the videos, and DevOps teams who maintain the infrastructure. Each group provided unique insights.",
+        "visual": "4 stakeholder group icons",
+        "duration": 20
+      },
+      {
+        "title": "Current State Analysis",
+        "content": "Current video production takes 4 to 8 hours of manual editing, plus 2 to 5 days of review cycles. Our target? Generate professional videos in under 10 minutes from simple JSON specifications. That's an 80% reduction in production time.",
+        "visual": "Timeline comparison",
+        "duration": 20
+      },
+      {
+        "title": "Market Research",
+        "content": "We evaluated Synthesia for AI avatars, Loom for quick recordings, and Descript for text-based editing. But for programmatic, version-control-friendly video generation, Remotion was the clear winner — React-based, automatable, and cost-effective.",
+        "visual": "Competitor comparison table",
+        "duration": 25
+      },
+      {
+        "title": "Technology Stack",
+        "content": "Our technology stack: JavaScript and Node.js for accessibility, React for component-based compositions, Remotion for programmatic rendering, and FFmpeg for professional-quality output. All version-controllable, all automatable.",
+        "visual": "Architecture diagram",
+        "duration": 15
+      },
+      {
+        "title": "Requirements",
+        "content": "We defined 8 functional requirements including JSON specification parsing, multiple video types, brand enforcement, and batch processing. Plus 5 non-functional requirements covering performance, scalability, accessibility, and cross-platform support.",
+        "visual": "Requirements checklist",
+        "duration": 20
+      },
+      {
+        "title": "Timeline",
+        "content": "The complete project spans 12 weeks across 8 phases — from discovery through specification, implementation, testing, and launch on June 1st.",
+        "visual": "Gantt chart timeline",
+        "duration": 10
+      }
+    ],
+    "conclusion": {
+      "summary": "The complete Discovery Phase documentation is available on our GitHub. This is Spec-Driven Development in action — thorough research, clear requirements, stakeholder alignment.",
+      "callToAction": "Visit agentfactory.panaversity.org to learn the methodology that's transforming video production.",
+      "duration": 30
+    }
+  },
+  "branding": {
+    "primaryColor": "#2563eb",
+    "logoPlacement": "top-left",
+    "website": "agentfactory.panaversity.org",
+    "tagline": "Learn Spec-Driven Development"
+  },
+  "assets": [],
+  "accessibility": {
+    "captions": true,
+    "minContrast": "4.5:1",
+    "minTextSize": "18px"
+  },
+  "distribution": {
+    "primaryChannels": ["website", "youtube", "linkedin", "twitter"],
+    "cta": "Learn SDD Methodology",
+    "tracking": "UTM parameters enabled"
+  },
+  "metadata": {
+    "createdAt": "2026-03-09",
+    "version": "1.0",
+    "status": "ready-for-production",
+    "launchTarget": "2026-03-26"
+  }
+}
