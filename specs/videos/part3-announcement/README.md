@@ -16,9 +16,11 @@ Create a **2-minute announcement video** for **AgentFactory Part 3: Business Dom
 
 | Document | Purpose | Location |
 |----------|---------|----------|
+| **Executive Summary** | 📄 Complete project overview for stakeholders | [`EXECUTIVE-SUMMARY.md`](./EXECUTIVE-SUMMARY.md) |
 | **Full Specification** | Complete creative brief, script, visual specs | [`spec.md`](./spec.md) |
 | **JSON Spec** | Machine-readable spec for video generator | [`spec.json`](./spec.json) |
 | **Task List** | Production tasks with owners and deadlines | [`tasks.md`](./tasks.md) |
+| **Test Results** | Video generation test documentation | [`TEST-RESULTS.md`](./TEST-RESULTS.md) |
 | **This README** | Quick reference and how-to | [`README.md`](./README.md) |
 
 ---
