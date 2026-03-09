@@ -1,55 +1,62 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Video Generator Constitution
+<!-- Specialized agent for creating demo videos for AgentFactory -->
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Demo-Centric Approach
+Create high-quality, engaging demo videos that showcase AgentFactory capabilities effectively; Every video must have clear learning objectives, concise explanations, and practical examples; Focus on real-world use cases and scenarios that resonate with the target audience.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Automation-First
+Automate the entire video creation pipeline from script generation to final rendering; Minimize manual intervention in the video production process; Reusable components and templates for consistent quality across all demos.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Test-First (NON-NEGOTIABLE)
+Every video asset and component must be validated before inclusion; Script → Visual Mockup → Asset Verification → Final Render; Quality checks at each stage of the pipeline.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Modular Composition
+Build video components as reusable, composable modules; Separate content logic from presentation; Enable easy customization and adaptation for different audiences.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Accessibility & Standards
+Ensure all videos meet accessibility standards (captions, audio descriptions, clear visuals); Follow consistent branding guidelines for AgentFactory; Maintain high production values for professional appearance.
 
-### [PRINCIPLE_6_NAME]
+### VI. Scalability & Performance
+Design the system to handle multiple concurrent video generation requests; Optimize for efficient resource utilization during rendering; Support various output formats and resolutions.
 
+## Technical Requirements
+<!-- Technology stack requirements, compliance standards, deployment policies, etc. -->
 
-[PRINCIPLE__DESCRIPTION]
+Video Generation Stack:
+- Python-based automation tools for video composition
+- FFmpeg for video processing and rendering
+- Modern templating engines for dynamic content insertion
+- Cloud storage integration for asset management
+- Containerized deployment for scalability
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Quality Standards:
+- Minimum 720p resolution, 30fps output
+- Consistent color palette and typography matching AgentFactory brand
+- Audio quality at 48kHz, 192kbps minimum
+- Maximum render time of 10 minutes per minute of video
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+## Development Workflow
+<!-- Code review requirements, testing gates, deployment approval process, etc. -->
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Development Process:
+- Define demo objectives and target audience before implementation
+- Create storyboards and scripts for approval
+- Implement modular video components with unit tests
+- Conduct quality assurance on sample renders
+- Deploy to staging environment for review
+- Publish to production after final approval
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Review Criteria:
+- Technical accuracy of demonstrations
+- Clarity and engagement of presentation
+- Consistency with AgentFactory brand guidelines
+- Performance and accessibility compliance
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+<!-- Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+All video generation implementations must comply with this constitution; Changes to core principles require stakeholder approval and impact assessment; Regular audits to ensure continued adherence to quality standards.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-03-09 | **Last Amended**: 2026-03-09
