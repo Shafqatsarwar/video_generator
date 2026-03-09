@@ -1,0 +1,492 @@
+{
+  "timestamp": "2026-03-09T22:59:18.238Z",
+  "summary": {
+    "total": 96,
+    "passed": 96,
+    "failed": 0,
+    "skipped": 0,
+    "passRate": "100.0%"
+  },
+  "details": [
+    {
+      "name": "V2.0 version field present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Story layer present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Multi-format support present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Voiceover config present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Subtitles config present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Screen capture config present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Thumbnail config present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Screen capture steps is array",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Screen capture has 3 steps",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Multi-language support (3 langs)",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "8 platform formats defined",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "YouTube demo format",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "TikTok format",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Twitter/X format",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Vertical format (9:16)",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Square format (1:1)",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Landscape format (16:9)",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Hook duration 3 seconds",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Problem duration 7 seconds",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Demo duration 40 seconds",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Benefit duration 20 seconds",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "CTA duration 10 seconds",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Total story duration 80s (expected 80s)",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "4 story templates defined",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Product demo template",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Tutorial template",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Case study template",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Feature announcement template",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Script generated successfully",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Script metadata present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Script structure present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Introduction section present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Body section present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Conclusion section present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Timing information present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Voiceover script present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Hook in introduction",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "CTA in conclusion",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Agent initialized with V2 config",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Quality setting applied",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Resolution setting applied",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Format setting applied",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Invalid quality corrected to high",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Invalid resolution corrected to 1080p",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Invalid format corrected to mp4",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Capture steps is array",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "5 capture steps defined",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Navigate action present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Click action present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Type action present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Screenshot action present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Highlight action present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Primary selector present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Fallback selectors is array",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "2 fallback selectors",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "XPath selector present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Voiceover enabled",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "ElevenLabs provider",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Voice configuration present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Sample rate 48kHz",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Bitrate 192kbps",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Target loudness -16 LUFS",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Subtitles enabled",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Whisper API method",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Highlight keywords style",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Burn-in enabled",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "SRT export enabled",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Translations is array",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "3 language translations",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Logo config present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Logo position top-right",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Colors config present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Primary color correct",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Fonts config present",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Intro enabled",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Outro enabled",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "6 scene templates defined",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Hero scene template",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "CTA scene template",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Feature scene 15s duration",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Script generated with empty keyPoints",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Body section created (auto-generated)",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Too short duration detected (<10s)",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Too long duration detected (>600s)",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Valid duration in range",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Title escaped for safety",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Quotes escaped",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Angle brackets escaped",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Asset loading handled gracefully",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Invalid asset marked as invalid",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Error message provided",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Config retrieval fast enough (1ms < 1000ms)",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Script generation fast enough (0ms < 5000ms)",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "5+ video types configured",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Tutorial type configured",
+      "status": "✅ PASS",
+      "details": ""
+    },
+    {
+      "name": "Product overview type configured",
+      "status": "✅ PASS",
+      "details": ""
+    }
+  ]
+}
