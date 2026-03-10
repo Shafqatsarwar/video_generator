@@ -42,6 +42,8 @@ const VIDEO_TYPE_CONFIGS = {
   }
 };
 
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
 /**
  * Brand voice guidelines for AgentFactory
  */
@@ -57,6 +59,13 @@ const BRAND_VOICE = {
   ]
 };
 
+// Initialize Gemini API if key is available
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "AIzaSyB0vk95FKX5n1g9pf0lPoGoYpFuKwGr9ko";
+let genAI = null;
+if (GOOGLE_API_KEY && GOOGLE_API_KEY !== 'your_google_api_key_here') {
+  genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+}
+
 /**
  * Create a comprehensive script from video specification
  * @param {Object} specification - Video specification object
@@ -70,14 +79,22 @@ async function createScript(specification) {
     duration,
     targetAudience,
     videoType = 'default',
-    story // V2.0 Story block
+    story, // V2.0 Story block
+    useAI = true
   } = specification;
 
   // Get configuration for video type
   const config = VIDEO_TYPE_CONFIGS[videoType] || VIDEO_TYPE_CONFIGS.default;
 
+  // Try to enhance/generate story with Gemini if allowed and available
+  let enhancedStory = story;
+  if (useAI && genAI) {
+    console.log('      Enhancing script with Gemini AI...');
+    enhancedStory = await generateAIScript(specification);
+  }
+
   // Calculate timing based on video type and presence of story components
-  const timing = calculateTiming(duration, config, story);
+  const timing = calculateTiming(duration, config, enhancedStory);
 
   // Generate script sections
   const script = {
@@ -87,27 +104,69 @@ async function createScript(specification) {
       targetAudience: targetAudience || 'Developers',
       estimatedDuration: duration,
       generatedAt: new Date().toISOString(),
-      version: story ? '2.0' : '1.0'
+      version: enhancedStory ? '2.0-AI' : '1.0'
     },
     structure: {
-      introduction: generateIntroduction({ title, description, targetAudience, videoType, story }, timing.intro),
-      problem: story && story.problem ? {
-        content: typeof story.problem === 'string' ? story.problem : story.problem.text,
+      introduction: generateIntroduction({ title, description, targetAudience, videoType, story: enhancedStory }, timing.intro),
+      problem: enhancedStory && enhancedStory.problem ? {
+        content: typeof enhancedStory.problem === 'string' ? enhancedStory.problem : enhancedStory.problem.text,
         duration: timing.problem || 0
       } : null,
-      body: generateBody(keyPoints, timing.body, config.structure, story),
-      benefit: story && story.benefit ? {
-        content: typeof story.benefit === 'string' ? story.benefit : story.benefit.text,
+      body: generateBody(keyPoints, timing.body, config.structure, enhancedStory),
+      benefit: enhancedStory && enhancedStory.benefit ? {
+        content: typeof enhancedStory.benefit === 'string' ? enhancedStory.benefit : enhancedStory.benefit.text,
         duration: timing.benefit || 0
       } : null,
-      conclusion: generateConclusion({ title, videoType, targetAudience, story }, timing.conclusion)
+      conclusion: generateConclusion({ title, videoType, targetAudience, story: enhancedStory }, timing.conclusion)
     },
     timing,
-    voiceover: generateVoiceoverScript({ title, description, keyPoints, targetAudience, videoType, story }),
-    visualCues: generateVisualCues(keyPoints, config.structure, story)
+    voiceover: generateVoiceoverScript({ title, description, keyPoints, targetAudience, videoType, story: enhancedStory }),
+    visualCues: generateVisualCues(keyPoints, config.structure, enhancedStory)
   };
 
   return script;
+}
+
+/**
+ * Use Gemini to generate a narrative story block
+ */
+async function generateAIScript(spec) {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const prompt = `
+      Create a compelling video script story for a video with the following details:
+      Title: ${spec.title}
+      Description: ${spec.description}
+      Key Points: ${spec.keyPoints.join(', ')}
+      Target Audience: ${spec.targetAudience}
+      Video Type: ${spec.videoType}
+
+      Return a JSON object with the following fields:
+      - hook: An engaging 1-sentence opening hook.
+      - problem: A 2-sentence description of the problem this solves.
+      - demo: A 2-sentence description of what will be shown.
+      - benefit: A 2-sentence value proposition/benefit.
+      - cta: A specific call to action.
+
+      Make the tone professional and expert. Do not include any preamble, just the JSON.
+    `;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+
+    // Clean up potential markdown formatting from JSON response
+    const jsonStr = text.replace(/```json|```/g, '').trim();
+    const aiStory = JSON.parse(jsonStr);
+
+    return {
+      ...spec.story,
+      ...aiStory
+    };
+  } catch (error) {
+    console.warn(`      Gemini AI enhancement failed: ${error.message}. Falling back to templates.`);
+    return spec.story;
+  }
 }
 
 /**

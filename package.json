@@ -9,12 +9,13 @@
     "dev": "nodemon .agents/video-generator/index.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@remotion/bundler": "^4.0.0",
     "@remotion/renderer": "^4.0.0",
-    "remotion": "^4.0.0",
+    "express": "^4.18.0",
     "ffmpeg-static": "^5.0.0",
     "puppeteer": "^22.0.0",
-    "express": "^4.18.0"
+    "remotion": "^4.0.0"
   },
   "devDependencies": {
     "jest": "^29.0.0",

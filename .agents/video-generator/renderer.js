@@ -36,8 +36,22 @@ async function renderVideo(compositionSpec, config) {
     const outputDir = path.join(process.cwd(), 'output');
     await fs.mkdir(outputDir, { recursive: true });
 
+    // Ensure public/assets directory exists in bundle (Remotion standard)
+    const bundleAssetsDir = path.join(bundleDir, 'public', 'assets');
+    await fs.mkdir(bundleAssetsDir, { recursive: true });
+
+    // Handle voiceover audio asset
+    let voiceoverFilename = null;
+    if (compositionSpec.assets && compositionSpec.assets.audio) {
+      const voiceoverAsset = compositionSpec.assets.audio.find(a => a.role === 'voiceover' && a.valid);
+      if (voiceoverAsset) {
+        voiceoverFilename = 'voiceover.wav';
+        await fs.copyFile(voiceoverAsset.path, path.join(bundleAssetsDir, voiceoverFilename));
+      }
+    }
+
     // Generate composition files
-    await generateCompositionFiles(bundleDir, compositionSpec, config);
+    await generateCompositionFiles(bundleDir, compositionSpec, config, voiceoverFilename);
 
     // Bundle the composition
     console.log('Bundling composition...');
@@ -117,7 +131,7 @@ function getQualityValue(quality) {
 /**
  * Generate all necessary composition files
  */
-async function generateCompositionFiles(bundleDir, spec, config) {
+async function generateCompositionFiles(bundleDir, spec, config, voiceoverFilename) {
   const resolution = RESOLUTIONS[config.resolution || '1080p'] || RESOLUTIONS['1080p'];
   const fps = config.fps || DEFAULT_FPS;
   const durationInFrames = (spec.duration || 60) * fps;
@@ -151,7 +165,9 @@ const RemotionRoot = () => {
         height={${resolution.height}}
         defaultProps={{
           title: "${spec.title.replace(/"/g, '\\"')}",
-          keyPoints: ${JSON.stringify(spec.keyPoints)}
+          keyPoints: ${JSON.stringify(spec.keyPoints)},
+          voiceoverFilename: ${voiceoverFilename ? `"${voiceoverFilename}"` : 'null'},
+          branding: ${JSON.stringify(spec.branding || config.branding || {})}
         }}
       />
     </>
@@ -162,7 +178,7 @@ registerRoot(RemotionRoot);
 `;
 
   // Create the main composition component
-  const mainComposition = generateMainComposition(spec, config, resolution, fps);
+  const mainComposition = generateMainComposition(spec, config, resolution, fps, voiceoverFilename);
 
   // Write all files
   await fs.writeFile(
@@ -232,10 +248,15 @@ function generateMainComposition(spec, config, resolution, fps) {
 
   return `
 import React from 'react';
-import { AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig, interpolate, Easing } from 'remotion';
+import { AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig, interpolate, Easing, Audio, staticFile } from 'remotion';
 
 // Main composition exported for Remotion
-export const MainComposition = () => {
+export const MainComposition = ({ title, keyPoints = [], voiceoverFilename, branding = {} }) => {
+  const brandName = branding.name || 'AgentFactory';
+  const brandWebsite = branding.website || 'agentfactory.panaversity.org';
+  const primaryColor = branding.primaryColor || '#2563eb';
+  const showBranding = branding.showBranding !== false;
+
   return (
     <AbsoluteFill style={{ backgroundColor: '#ffffff' }}>
       {/* Branded gradient background */}
@@ -251,13 +272,16 @@ export const MainComposition = () => {
       />
       
       {/* Header with logo */}
-      <Header />
+      {showBranding && <Header name={brandName} website={brandWebsite} color={primaryColor} />}
+
+      {/* Voiceover audio */}
+      {voiceoverFilename && <Audio src={staticFile(\`assets/\${voiceoverFilename}\`)} />}
       
       {/* Main content area */}
-      <AbsoluteFill style={{ paddingTop: 80 }}>
+      <AbsoluteFill style={{ paddingTop: showBranding ? 80 : 0 }}>
         {/* Introduction */}
         <Sequence from={0} durationInFrames={${introFrames}}>
-          <IntroSlide title="${escapedTitle}" />
+          <IntroSlide title="${escapedTitle}" showBranding={showBranding} brandName={brandName} />
         </Sequence>
         
         {/* Problem Section (V2.0) */}
@@ -271,15 +295,15 @@ export const MainComposition = () => {
         
         {/* Conclusion */}
         <Sequence from={${totalFrames - conclusionFrames}} durationInFrames={${conclusionFrames}}>
-          <ConclusionSlide />
+          <ConclusionSlide showBranding={showBranding} brandWebsite={brandWebsite} primaryColor={primaryColor} />
         </Sequence>
       </AbsoluteFill>
     </AbsoluteFill>
   );
 };
 
-// Header component with AgentFactory branding
-const Header = () => {
+// Header component with branding
+const Header = ({ name, website, color }) => {
   const frame = useCurrentFrame();
   const opacity = interpolate(frame, [0, 30], [0, 1], { clamp: true });
   
@@ -301,11 +325,11 @@ const Header = () => {
         style={{
           fontSize: 28,
           fontWeight: 'bold',
-          color: '#2563eb',
+          color: color,
           letterSpacing: '-0.5px',
         }}
       >
-        AgentFactory
+        {name}
       </div>
       <div
         style={{
@@ -313,14 +337,14 @@ const Header = () => {
           color: '#64748b',
         }}
       >
-        agentfactory.panaversity.org
+        {website}
       </div>
     </div>
   );
 };
 
 // Introduction slide component
-const IntroSlide = ({ title }) => {
+const IntroSlide = ({ title, showBranding, brandName }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   
@@ -350,17 +374,19 @@ const IntroSlide = ({ title }) => {
       >
         {title}
       </div>
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 100,
-          fontSize: 20,
-          color: '#64748b',
-          opacity: interpolate(frame, [10, 25], [0, 1]),
-        }}
-      >
-        Powered by AgentFactory
-      </div>
+      {showBranding && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 100,
+            fontSize: 20,
+            color: '#64748b',
+            opacity: interpolate(frame, [10, 25], [0, 1]),
+          }}
+        >
+          Powered by {brandName}
+        </div>
+      )}
     </AbsoluteFill>
   );
 };
@@ -484,7 +510,7 @@ const BenefitSlide = ({ text }) => {
 };
 
 // Conclusion slide component
-const ConclusionSlide = () => {
+const ConclusionSlide = ({ showBranding, brandWebsite, primaryColor }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   
@@ -509,33 +535,35 @@ const ConclusionSlide = () => {
           style={{
             fontSize: 42,
             fontWeight: 'bold',
-            color: '#2563eb',
+            color: primaryColor,
             marginBottom: 20,
           }}
         >
           Ready to Get Started?
         </div>
-        <div
-          style={{
-            fontSize: 24,
-            color: '#64748b',
-            marginBottom: 40,
-          }}
-        >
-          Visit agentfactory.panaversity.org
-        </div>
+        {showBranding && (
+          <div
+            style={{
+              fontSize: 24,
+              color: '#64748b',
+              marginBottom: 40,
+            }}
+          >
+            Visit {brandWebsite}
+          </div>
+        )}
         <div
           style={{
             display: 'inline-block',
             padding: '16px 32px',
-            backgroundColor: '#2563eb',
+            backgroundColor: primaryColor,
             color: 'white',
             fontSize: 20,
             fontWeight: '600',
             borderRadius: 8,
           }}
         >
-          Build Your First Agent
+          Get Started Now
         </div>
       </div>
     </AbsoluteFill>
