@@ -27,7 +27,13 @@
       "description": "Type of video to generate",
       "required": false,
       "default": "default",
-      "enum": ["tutorial", "feature-walkthrough", "product-overview", "case-study", "default"]
+      "enum": [
+        "tutorial",
+        "feature-walkthrough",
+        "product-overview",
+        "case-study",
+        "default"
+      ]
     },
     "keyPoints": {
       "type": "array",
@@ -61,17 +67,30 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["image", "video", "audio", "font"]
+            "enum": [
+              "image",
+              "video",
+              "audio",
+              "font"
+            ]
           },
           "path": {
             "type": "string"
           },
           "placement": {
             "type": "string",
-            "enum": ["top-left", "top-right", "center", "bottom"]
+            "enum": [
+              "top-left",
+              "top-right",
+              "center",
+              "bottom"
+            ]
           }
         },
-        "required": ["type", "path"]
+        "required": [
+          "type",
+          "path"
+        ]
       }
     },
     "quality": {
@@ -79,21 +98,59 @@
       "description": "Output quality setting",
       "required": false,
       "default": "high",
-      "enum": ["high", "medium", "low"]
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
     },
     "resolution": {
       "type": "string",
       "description": "Output resolution",
       "required": false,
       "default": "1080p",
-      "enum": ["720p", "1080p", "4k"]
+      "enum": [
+        "720p",
+        "1080p",
+        "4k"
+      ]
     },
     "outputFormat": {
       "type": "string",
       "description": "Output video format",
       "required": false,
       "default": "mp4",
-      "enum": ["mp4", "webm"]
+      "enum": [
+        "mp4",
+        "webm"
+      ]
+    },
+    "story": {
+      "type": "object",
+      "description": "V2.0 Story structure for the video",
+      "required": false,
+      "properties": {
+        "hook": {
+          "type": "string",
+          "description": "Engaging opening hook"
+        },
+        "problem": {
+          "type": "string",
+          "description": "Problem or pain point"
+        },
+        "demo": {
+          "type": "string",
+          "description": "Brief demo description"
+        },
+        "benefit": {
+          "type": "string",
+          "description": "Key value proposition"
+        },
+        "cta": {
+          "type": "string",
+          "description": "Call to action"
+        }
+      }
     },
     "timeout": {
       "type": "number",
@@ -115,7 +172,11 @@
         "title": "Getting Started",
         "description": "Learn the basics",
         "videoType": "tutorial",
-        "keyPoints": ["Setup", "Configuration", "Testing"],
+        "keyPoints": [
+          "Setup",
+          "Configuration",
+          "Testing"
+        ],
         "duration": 60
       }
     },
@@ -125,7 +186,11 @@
         "title": "AgentFactory Overview",
         "description": "Platform capabilities",
         "videoType": "product-overview",
-        "keyPoints": ["Features", "Benefits", "Getting Started"],
+        "keyPoints": [
+          "Features",
+          "Benefits",
+          "Getting Started"
+        ],
         "duration": 90,
         "quality": "high",
         "resolution": "1080p"

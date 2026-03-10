@@ -24,15 +24,15 @@ const RESOLUTIONS = {
 async function renderVideo(compositionSpec, config) {
   const tempDir = path.join(os.tmpdir(), `agentfactory-video-${Date.now()}`);
   const bundleDir = path.join(tempDir, 'bundle');
-  
-  let bundle = null;
+
+  let bundledComposition = null;
   let cleanupNeeded = true;
 
   try {
     // Ensure temp and output directories exist
     await fs.mkdir(tempDir, { recursive: true });
     await fs.mkdir(bundleDir, { recursive: true });
-    
+
     const outputDir = path.join(process.cwd(), 'output');
     await fs.mkdir(outputDir, { recursive: true });
 
@@ -41,7 +41,7 @@ async function renderVideo(compositionSpec, config) {
 
     // Bundle the composition
     console.log('Bundling composition...');
-    bundle = await bundle({
+    bundledComposition = await bundle({
       cwd: bundleDir,
       entryPoint: path.join(bundleDir, 'index.js'),
       inputProps: {
@@ -53,7 +53,7 @@ async function renderVideo(compositionSpec, config) {
     });
 
     // Get available compositions
-    const comps = await getCompositions(bundle);
+    const comps = await getCompositions(bundledComposition);
     const comp = comps.find(c => c.id === 'AgentFactoryDemo');
 
     if (!comp) {
@@ -72,11 +72,11 @@ async function renderVideo(compositionSpec, config) {
     console.log('Rendering video...');
     await renderMedia({
       composition: comp,
-      serveUrl: bundle,
+      serveUrl: bundledComposition,
       codec,
       outputLocation: outputPath,
       imageFormat: 'jpeg',
-      quality: getQualityValue(config.quality || 'high'),
+      jpegQuality: getQualityValue(config.quality || 'high'),
       concurrency: Math.min(os.cpus().length, config.maxConcurrency || 4),
       timeout: config.renderTimeout || 300000,
       onProgress: (progress) => {
@@ -107,11 +107,11 @@ async function renderVideo(compositionSpec, config) {
  */
 function getQualityValue(quality) {
   const qualityMap = {
-    'high': 1,
-    'medium': 0.7,
-    'low': 0.5
+    'high': 90,
+    'medium': 70,
+    'low': 50
   };
-  return qualityMap[quality] || 0.7;
+  return qualityMap[quality] || 70;
 }
 
 /**
@@ -120,6 +120,7 @@ function getQualityValue(quality) {
 async function generateCompositionFiles(bundleDir, spec, config) {
   const resolution = RESOLUTIONS[config.resolution || '1080p'] || RESOLUTIONS['1080p'];
   const fps = config.fps || DEFAULT_FPS;
+  const durationInFrames = (spec.duration || 60) * fps;
 
   // Create package.json for the bundle
   const packageJson = {
@@ -133,12 +134,31 @@ async function generateCompositionFiles(bundleDir, spec, config) {
     }
   };
 
-  // Create main index.js entry point
+  // Create main index.js entry point with proper Composition registration
   const indexJs = `
-import { registerRoot } from 'remotion';
+import { registerRoot, Composition } from 'remotion';
 import { MainComposition } from './MainComposition';
 
-registerRoot(MainComposition);
+const RemotionRoot = () => {
+  return (
+    <>
+      <Composition
+        id="AgentFactoryDemo"
+        component={MainComposition}
+        durationInFrames={${durationInFrames}}
+        fps={${fps}}
+        width={${resolution.width}}
+        height={${resolution.height}}
+        defaultProps={{
+          title: "${spec.title.replace(/"/g, '\\"')}",
+          keyPoints: ${JSON.stringify(spec.keyPoints)}
+        }}
+      />
+    </>
+  );
+};
+
+registerRoot(RemotionRoot);
 `;
 
   // Create the main composition component
@@ -150,35 +170,65 @@ registerRoot(MainComposition);
     JSON.stringify(packageJson, null, 2)
   );
   await fs.writeFile(path.join(bundleDir, 'index.js'), indexJs);
+  // Use .jsx extension for React components
   await fs.writeFile(path.join(bundleDir, 'MainComposition.jsx'), mainComposition);
 }
 
 /**
  * Generate the main composition React component
  */
+/**
+ * Generate the main composition React component
+ */
 function generateMainComposition(spec, config, resolution, fps) {
-  const { title, keyPoints = [] } = spec;
+  const { title, keyPoints = [], story } = spec;
   const durationInSeconds = spec.duration || 60;
   const totalFrames = durationInSeconds * fps;
-  
+
   // Calculate section timings
   const introFrames = Math.floor(totalFrames * 0.15);
   const conclusionFrames = Math.floor(totalFrames * 0.15);
-  const bodyFrames = totalFrames - introFrames - conclusionFrames;
+
+  let problemFrames = 0;
+  let benefitFrames = 0;
+  if (story) {
+    if (story.problem) problemFrames = (story.problem.duration || 7) * fps;
+    if (story.benefit) benefitFrames = (story.benefit.duration || 20) * fps;
+  }
+
+  const bodyFrames = totalFrames - introFrames - conclusionFrames - problemFrames - benefitFrames;
   const framesPerPoint = keyPoints.length > 0 ? Math.floor(bodyFrames / keyPoints.length) : bodyFrames;
 
   // Escape strings for safe JSX interpolation
   const escapedTitle = escapeJsxString(title);
 
+  let problemSequence = '';
+  if (story && story.problem) {
+    const escapedProblem = escapeJsxString(typeof story.problem === 'string' ? story.problem : story.problem.text);
+    problemSequence = `
+        <Sequence from={${introFrames}} durationInFrames={${problemFrames}}>
+          <ProblemSlide text="${escapedProblem}" />
+        </Sequence>`;
+  }
+
   // Generate key point sequences
   const keyPointSequences = keyPoints.map((point, idx) => {
-    const fromFrame = introFrames + (idx * framesPerPoint);
+    const fromFrame = introFrames + problemFrames + (idx * framesPerPoint);
     const escapedPoint = escapeJsxString(point);
     return `
       <Sequence from={${fromFrame}} durationInFrames={${framesPerPoint}}>
         <KeyPointSlide point="${escapedPoint}" index={${idx + 1}} totalPoints={${keyPoints.length}} />
       </Sequence>`;
   }).join('\n');
+
+  let benefitSequence = '';
+  if (story && story.benefit) {
+    const escapedBenefit = escapeJsxString(typeof story.benefit === 'string' ? story.benefit : story.benefit.text);
+    benefitSequence = `
+        <Sequence from={${introFrames + problemFrames + bodyFrames}} durationInFrames={${benefitFrames}}>
+          <BenefitSlide text="${escapedBenefit}" />
+        </Sequence>`;
+  }
 
   return `
 import React from 'react';
@@ -210,11 +260,17 @@ export const MainComposition = () => {
           <IntroSlide title="${escapedTitle}" />
         </Sequence>
         
-        {/* Key points */}
+        {/* Problem Section (V2.0) */}
+        ${problemSequence}
+        
+        {/* Key points (Body) */}
         ${keyPointSequences}
         
+        {/* Benefit Section (V2.0) */}
+        ${benefitSequence}
+        
         {/* Conclusion */}
-        <Sequence from={${introFrames + bodyFrames}} durationInFrames={${conclusionFrames}}>
+        <Sequence from={${totalFrames - conclusionFrames}} durationInFrames={${conclusionFrames}}>
           <ConclusionSlide />
         </Sequence>
       </AbsoluteFill>
@@ -309,6 +365,37 @@ const IntroSlide = ({ title }) => {
   );
 };
 
+// Problem slide component (V2.0)
+const ProblemSlide = ({ text }) => {
+  const frame = useCurrentFrame();
+  const opacity = interpolate(frame, [0, 20], [0, 1]);
+  
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#1e293b',
+        padding: '0 100px',
+        opacity,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 42,
+          color: '#f8fafc',
+          textAlign: 'center',
+          fontWeight: '500',
+          lineHeight: 1.4,
+        }}
+      >
+        <span style={{ color: '#ef4444', fontWeight: 'bold' }}>The Challenge:</span><br/>
+        {text}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 // Key point slide component
 const KeyPointSlide = ({ point, index, totalPoints }) => {
   const frame = useCurrentFrame();
@@ -358,6 +445,39 @@ const KeyPointSlide = ({ point, index, totalPoints }) => {
         >
           {point}
         </div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// Benefit slide component (V2.0)
+const BenefitSlide = ({ text }) => {
+  const frame = useCurrentFrame();
+  const opacity = interpolate(frame, [0, 20], [0, 1]);
+  const scale = interpolate(frame, [0, 30], [0.95, 1.05], { extrapolateRight: 'clamp' });
+  
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: 'linear-gradient(135deg, #2563eb 0%, #174ed1 100%)',
+        padding: '0 100px',
+        opacity,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 48,
+          color: 'white',
+          textAlign: 'center',
+          fontWeight: 'bold',
+          lineHeight: 1.3,
+          transform: \`scale(\${scale})\`,
+        }}
+      >
+        <div style={{ color: '#60a5fa', fontSize: 24, marginBottom: 20 }}>THE VALUE</div>
+        {text}
       </div>
     </AbsoluteFill>
   );

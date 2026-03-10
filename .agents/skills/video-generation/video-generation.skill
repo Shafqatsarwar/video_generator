@@ -43,7 +43,8 @@ async function executeSkill(parameters) {
       keyPoints: parameters.keyPoints || [],
       duration: parameters.duration || 60,
       targetAudience: parameters.targetAudience || 'Developers',
-      assets: parameters.assets || []
+      assets: parameters.assets || [],
+      story: parameters.story || null
     };
 
     console.log('Video Specification:');
@@ -164,9 +165,9 @@ function getSkillInfo() {
     parameters: {
       title: { type: 'string', required: true, description: 'Title of the video' },
       description: { type: 'string', required: false, description: 'Brief description of the video content' },
-      videoType: { 
-        type: 'string', 
-        required: false, 
+      videoType: {
+        type: 'string',
+        required: false,
         description: 'Type of video',
         options: ['tutorial', 'feature-walkthrough', 'product-overview', 'case-study', 'default']
       },
@@ -218,7 +219,7 @@ if (require.main === module) {
   // Parse and execute
   try {
     const parameters = JSON.parse(args[0]);
-    
+
     executeSkill(parameters)
       .then(result => {
         console.log('');

@@ -63,20 +63,21 @@ const BRAND_VOICE = {
  * @returns {Object} Generated script with timing and voiceover
  */
 async function createScript(specification) {
-  const { 
-    title, 
-    description, 
-    keyPoints, 
-    duration, 
+  const {
+    title,
+    description,
+    keyPoints,
+    duration,
     targetAudience,
-    videoType = 'default'
+    videoType = 'default',
+    story // V2.0 Story block
   } = specification;
 
   // Get configuration for video type
   const config = VIDEO_TYPE_CONFIGS[videoType] || VIDEO_TYPE_CONFIGS.default;
 
-  // Calculate timing based on video type
-  const timing = calculateTiming(duration, config);
+  // Calculate timing based on video type and presence of story components
+  const timing = calculateTiming(duration, config, story);
 
   // Generate script sections
   const script = {
@@ -85,16 +86,25 @@ async function createScript(specification) {
       videoType,
       targetAudience: targetAudience || 'Developers',
       estimatedDuration: duration,
-      generatedAt: new Date().toISOString()
+      generatedAt: new Date().toISOString(),
+      version: story ? '2.0' : '1.0'
     },
     structure: {
-      introduction: generateIntroduction({ title, description, targetAudience, videoType }, timing.intro),
-      body: generateBody(keyPoints, timing.body, config.structure),
-      conclusion: generateConclusion({ videoType, targetAudience }, timing.conclusion)
+      introduction: generateIntroduction({ title, description, targetAudience, videoType, story }, timing.intro),
+      problem: story && story.problem ? {
+        content: typeof story.problem === 'string' ? story.problem : story.problem.text,
+        duration: timing.problem || 0
+      } : null,
+      body: generateBody(keyPoints, timing.body, config.structure, story),
+      benefit: story && story.benefit ? {
+        content: typeof story.benefit === 'string' ? story.benefit : story.benefit.text,
+        duration: timing.benefit || 0
+      } : null,
+      conclusion: generateConclusion({ title, videoType, targetAudience, story }, timing.conclusion)
     },
     timing,
-    voiceover: generateVoiceoverScript({ title, description, keyPoints, targetAudience, videoType }),
-    visualCues: generateVisualCues(keyPoints, config.structure)
+    voiceover: generateVoiceoverScript({ title, description, keyPoints, targetAudience, videoType, story }),
+    visualCues: generateVisualCues(keyPoints, config.structure, story)
   };
 
   return script;
@@ -103,20 +113,37 @@ async function createScript(specification) {
 /**
  * Calculate timing for each section based on duration and video type
  */
-function calculateTiming(durationSeconds, config) {
+function calculateTiming(durationSeconds, config, story) {
   const totalMs = durationSeconds * 1000;
-  
-  const introMs = Math.floor(totalMs * config.introRatio);
-  const conclusionMs = Math.floor(totalMs * config.conclusionRatio);
-  const bodyMs = totalMs - introMs - conclusionMs;
+
+  // Base ratios
+  let introRatio = config.introRatio;
+  let conclusionRatio = config.conclusionRatio;
+
+  // If story block is present, we need to accommodate problem and benefit
+  let problemMs = 0;
+  let benefitMs = 0;
+
+  if (story) {
+    if (story.problem) problemMs = (story.problem.duration || 7) * 1000;
+    if (story.benefit) benefitMs = (story.benefit.duration || 20) * 1000;
+  }
+
+  const introMs = Math.floor(totalMs * introRatio);
+  const conclusionMs = Math.floor(totalMs * conclusionRatio);
+  const bodyMs = totalMs - introMs - conclusionMs - problemMs - benefitMs;
 
   return {
     total: totalMs,
     intro: introMs,
+    problem: problemMs,
     body: bodyMs,
+    benefit: benefitMs,
     conclusion: conclusionMs,
     introSeconds: (introMs / 1000).toFixed(1),
+    problemSeconds: (problemMs / 1000).toFixed(1),
     bodySeconds: (bodyMs / 1000).toFixed(1),
+    benefitSeconds: (benefitMs / 1000).toFixed(1),
     conclusionSeconds: (conclusionMs / 1000).toFixed(1)
   };
 }
@@ -125,23 +152,27 @@ function calculateTiming(durationSeconds, config) {
  * Generate introduction section
  */
 function generateIntroduction(context, timingMs) {
-  const { title, description, targetAudience, videoType } = context;
-  
-  const hooks = {
-    tutorial: `Welcome to this step-by-step tutorial on ${title}. By the end of this video, you'll have a clear understanding of ${description}.`,
-    'feature-walkthrough': `Let's explore ${title} - a powerful feature that ${description}. This walkthrough will show you exactly how it works.`,
-    'product-overview': `Discover how AgentFactory is transforming the way developers build AI agents. Today, we're diving into ${title}.`,
-    'case-study': `See how developers are achieving remarkable results with AgentFactory. This case study examines ${title}.`,
-    default: `Welcome to this demonstration of ${title}. We'll explore how ${description} using the AgentFactory platform.`
-  };
+  const { title, description, targetAudience, videoType, story } = context;
 
-  const hook = hooks[videoType] || hooks.default;
+  let hook = '';
+  if (story && story.hook) {
+    hook = typeof story.hook === 'string' ? story.hook : story.hook.text;
+  } else {
+    const hooks = {
+      tutorial: `Welcome to this step-by-step tutorial on ${title}. By the end of this video, you'll have a clear understanding of ${description}.`,
+      'feature-walkthrough': `Let's explore ${title} - a powerful feature that ${description}. This walkthrough will show you exactly how it works.`,
+      'product-overview': `Discover how AgentFactory is transforming the way developers build AI agents. Today, we're diving into ${title}.`,
+      'case-study': `See how developers are achieving remarkable results with AgentFactory. This case study examines ${title}.`,
+      default: `Welcome to this demonstration of ${title}. We'll explore how ${description} using the AgentFactory platform.`
+    };
+    hook = hooks[videoType] || hooks.default;
+  }
 
   return {
     hook,
     branding: 'AgentFactory - Empowering developers to build AI agents',
     duration: timingMs,
-    keyMessage: `Learn how ${targetAudience || 'developers'} can leverage AgentFactory for ${description}`
+    keyMessage: `Learn how ${targetAudience || 'developers'} can leverage AgentFactory for ${description || title}`
   };
 }
 
@@ -169,22 +200,22 @@ function generateBody(keyPoints = [], timingMs, structure) {
         sectionTitle = `Step ${index + 1}: ${extractKeyAction(point)}`;
         content = `In this step, we'll ${point.toLowerCase()}. This is essential for building a complete solution.`;
         break;
-      
+
       case 'feature-focused':
         sectionTitle = `Feature: ${capitalizeFirst(point)}`;
         content = `Let's examine this feature closely. ${point} - here's what makes it powerful and how you can use it.`;
         break;
-      
+
       case 'benefit-focused':
         sectionTitle = `Benefit: ${extractBenefit(point)}`;
         content = `This means ${point.toLowerCase()}. Imagine the possibilities this opens up for your projects.`;
         break;
-      
+
       case 'problem-solution':
         sectionTitle = `Insight ${index + 1}: ${summarizePoint(point)}`;
         content = `Here's what we observed: ${point}. This insight drives our approach to solving the challenge.`;
         break;
-      
+
       default:
         sectionTitle = `Point ${index + 1}: ${capitalizeFirst(point)}`;
         content = `Let's cover this key point: ${point}. This is important for understanding the overall concept.`;
@@ -206,21 +237,29 @@ function generateBody(keyPoints = [], timingMs, structure) {
  * Generate conclusion section
  */
 function generateConclusion(context, timingMs) {
-  const { videoType, targetAudience } = context;
+  const { title, videoType, targetAudience, story } = context;
 
-  const summaries = {
-    tutorial: `You've now completed this tutorial on ${targetAudience || 'getting started'} with AgentFactory. Practice these steps to master the concepts.`,
-    'feature-walkthrough': `That wraps up our walkthrough of this feature. You now have a solid understanding of how it works and when to use it.`,
-    'product-overview': `AgentFactory provides everything you need to build production-ready AI agents. Start your journey today.`,
-    'case-study': `This case study demonstrates the real-world impact of AgentFactory. The results speak for themselves.`,
-    default: `That concludes our demonstration. You now have a clear understanding of the key concepts we've covered.`
-  };
+  let summary = '';
+  let callToAction = '';
 
-  const summary = summaries[videoType] || summaries.default;
+  if (story && story.cta) {
+    callToAction = typeof story.cta === 'string' ? story.cta : story.cta.text;
+    summary = `That concludes our look at ${title}. ${callToAction}`;
+  } else {
+    const summaries = {
+      tutorial: `You've now completed this tutorial on ${targetAudience || 'getting started'} with AgentFactory. Practice these steps to master the concepts.`,
+      'feature-walkthrough': `That wraps up our walkthrough of this feature. You now have a solid understanding of how it works and when to use it.`,
+      'product-overview': `AgentFactory provides everything you need to build production-ready AI agents. Start your journey today.`,
+      'case-study': `This case study demonstrates the real-world impact of AgentFactory. The results speak for themselves.`,
+      default: `That concludes our demonstration. You now have a clear understanding of the key concepts we've covered.`
+    };
+    summary = summaries[videoType] || summaries.default;
+    callToAction = `Visit ${BRAND_VOICE.website} to start building your own AI agents today.`;
+  }
 
   return {
     summary,
-    callToAction: `Visit ${BRAND_VOICE.website} to start building your own AI agents today.`,
+    callToAction,
     closing: `Thank you for watching. Join the AgentFactory community and start creating amazing AI-powered solutions.`,
     duration: timingMs,
     branding: {
@@ -234,14 +273,24 @@ function generateConclusion(context, timingMs) {
  * Generate voiceover script for the entire video
  */
 function generateVoiceoverScript(context) {
-  const { title, description, keyPoints, targetAudience, videoType } = context;
+  const { title, description, keyPoints, targetAudience, videoType, story } = context;
 
   let script = `[INTRO]\n`;
-  script += `Welcome to AgentFactory. ${capitalizeFirst(description || title)}.\n\n`;
+  if (story && story.hook) {
+    script += `${typeof story.hook === 'string' ? story.hook : story.hook.text}\n\n`;
+  } else {
+    script += `Welcome to AgentFactory. ${capitalizeFirst(description || title)}.\n\n`;
+  }
+
+  if (story && story.problem) {
+    script += `[PROBLEM]\n`;
+    script += `${typeof story.problem === 'string' ? story.problem : story.problem.text}\n\n`;
+  }
 
   if (keyPoints && keyPoints.length > 0) {
     script += `[MAIN CONTENT]\n`;
-    script += `In this ${videoType === 'default' ? 'video' : videoType.replace('-', ' ')}, we'll cover ${keyPoints.length} key points:\n\n`;
+    const transition = story && story.problem ? "That's why we built this solution. " : "";
+    script += `${transition}In this ${videoType === 'default' ? 'video' : videoType.replace('-', ' ')}, we'll cover ${keyPoints.length} key points:\n\n`;
 
     keyPoints.forEach((point, index) => {
       script += `${index + 1}. ${capitalizeFirst(point)}\n`;
@@ -250,9 +299,18 @@ function generateVoiceoverScript(context) {
     script += `\n`;
   }
 
+  if (story && story.benefit) {
+    script += `[BENEFITS]\n`;
+    script += `${typeof story.benefit === 'string' ? story.benefit : story.benefit.text}\n\n`;
+  }
+
   script += `[CONCLUSION]\n`;
-  script += `That's how AgentFactory empowers ${targetAudience || 'developers'} to build sophisticated AI agents efficiently.\n`;
-  script += `Visit ${BRAND_VOICE.website} to get started today.`;
+  if (story && story.cta) {
+    script += `${typeof story.cta === 'string' ? story.cta : story.cta.text}\n`;
+  } else {
+    script += `That's how AgentFactory empowers ${targetAudience || 'developers'} to build sophisticated AI agents efficiently.\n`;
+    script += `Visit ${BRAND_VOICE.website} to get started today.`;
+  }
 
   return {
     full: script,

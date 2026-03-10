@@ -16,19 +16,25 @@ async function generatePart3Video() {
   });
 
   const specification = {
+    version: '2.0',
     title: 'AgentFactory Part 3: Business Domain Agent Workflows',
     description: 'Announcing the definitive guide to enterprise AI agents',
     videoType: 'product-overview',
+    story: {
+      hook: "What if your business domain expertise could be instantly translated into production-ready AI agents?",
+      problem: "Enterprise workflows are complex, and generic AI often fails to capture the nuances of CFO, Legal, and Supply Chain operations.",
+      benefit: "AgentFactory Part 3 provides 16 chapters of validated workflows across 7 domains, reducing production time by 80%.",
+      cta: "Visit agentfactory.panaversity.org to launch your first enterprise agent factory."
+    },
     keyPoints: [
-      'Part 3 focuses on enterprise business workflows — 16 chapters across 7 domains',
-      'Translate your expertise into SKILL.md libraries for AI agents',
-      'Build production-ready agents for CFO, Legal, Sales, HR, Supply Chain',
-      'Governance framework: AI executes, professionals judge',
-      'Platform-agnostic deployment — works with Claude, Gemini, Copilot',
-      'Validated agent configurations ready for organizational use'
+      'Focus on 16 enterprise chapters across 7 business domains',
+      'Translate expertise into standardized SKILL.md libraries',
+      'Build specialized agents for CFO, Legal, Sales, and HR',
+      'Unified governance framework: AI executes, professionals judge',
+      'Platform-agnostic deployment for Claude, Gemini, and Copilot'
     ],
-    duration: 120,
-    targetAudience: 'Enterprise professionals, C-suite executives, AI engineers',
+    duration: 90,
+    targetAudience: 'Enterprise professionals, C-suite executives, and AI engineers',
     assets: []
   };
 
@@ -50,7 +56,7 @@ async function generatePart3Video() {
     console.log('  2. Add professional voiceover');
     console.log('  3. Add background music');
     console.log('  4. Create final 1080p version\n');
-    
+
     return outputPath;
   } catch (error) {
     console.error('\n❌ Video generation failed:', error.message);

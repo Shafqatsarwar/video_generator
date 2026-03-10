@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-09T22:59:18.238Z",
+  "timestamp": "2026-03-10T20:53:55.368Z",
   "summary": {
     "total": 96,
     "passed": 96,
@@ -464,7 +464,7 @@
       "details": ""
     },
     {
-      "name": "Config retrieval fast enough (1ms < 1000ms)",
+      "name": "Config retrieval fast enough (0ms < 1000ms)",
       "status": "✅ PASS",
       "details": ""
     },
