@@ -1,1 +1,14 @@
-node_modules
+# Logic for securing the Video Generator project
+node_modules/
+.env
+.env.local
+output/
+*.mp4
+*.wav
+*.mp3
+.temp/
+.remotion/
+package-lock.json
+verify-final.js
+introduction.mp4
+test_local.wav
