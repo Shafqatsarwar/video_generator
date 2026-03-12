@@ -17,8 +17,8 @@ async function generateVoiceover(text, outputPath) {
         const ps = spawn('powershell.exe', [
             '-ExecutionPolicy', 'Bypass',
             '-File', scriptPath,
-            `"${text.replace(/"/g, '`"')}"`, // Escape quotes for PowerShell
-            `"${outputPath}"`
+            text,
+            outputPath
         ]);
 
         let stderr = '';
