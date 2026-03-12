@@ -17,8 +17,8 @@ async function generateVoiceover(text, outputPath) {
         const ps = spawn('powershell.exe', [
             '-ExecutionPolicy', 'Bypass',
             '-File', scriptPath,
-            text,
-            outputPath
+            `"${text.replace(/"/g, '`"')}"`, // Escape quotes for PowerShell
+            `"${outputPath}"`
         ]);
 
         let stderr = '';
@@ -41,4 +41,30 @@ async function generateVoiceover(text, outputPath) {
     });
 }
 
-module.exports = { generateVoiceover };
+/**
+ * Get the duration of an audio file in seconds
+ * @param {string} filePath - Path to the audio file
+ * @returns {Promise<number>} - Duration in seconds
+ */
+async function getAudioDuration(filePath) {
+    return new Promise((resolve) => {
+        const ffmpeg = require('ffmpeg-static');
+        const { exec } = require('child_process');
+        
+        exec(`"${ffmpeg}" -i "${filePath}"`, (error, stdout, stderr) => {
+            // ffmpeg outputs info to stderr
+            const match = /Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})/.exec(stderr);
+            if (match) {
+                const hours = parseInt(match[1]);
+                const minutes = parseInt(match[2]);
+                const seconds = parseInt(match[3]);
+                const centiseconds = parseInt(match[4]);
+                resolve(hours * 3600 + minutes * 60 + seconds + centiseconds / 100);
+            } else {
+                resolve(0);
+            }
+        });
+    });
+}
+
+module.exports = { generateVoiceover, getAudioDuration };

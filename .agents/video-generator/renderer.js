@@ -197,52 +197,84 @@ registerRoot(RemotionRoot);
  * Generate the main composition React component
  */
 function generateMainComposition(spec, config, resolution, fps) {
-  const { title, keyPoints = [], story } = spec;
+  const { title, keyPoints = [], story, script } = spec;
   const durationInSeconds = spec.duration || 60;
   const totalFrames = durationInSeconds * fps;
 
-  // Calculate section timings
-  const introFrames = Math.floor(totalFrames * 0.15);
-  const conclusionFrames = Math.floor(totalFrames * 0.15);
-
-  let problemFrames = 0;
-  let benefitFrames = 0;
-  if (story) {
-    if (story.problem) problemFrames = (story.problem.duration || 7) * fps;
-    if (story.benefit) benefitFrames = (story.benefit.duration || 20) * fps;
+  // Use voiceover segments if available for perfect sync
+  let voiceoverSegments = script?.voiceover?.segments || [];
+  
+  // If no segments, create a fallback segment
+  if (voiceoverSegments.length === 0) {
+    voiceoverSegments = [{ section: 'intro', text: title }];
   }
 
-  const bodyFrames = totalFrames - introFrames - conclusionFrames - problemFrames - benefitFrames;
-  const framesPerPoint = keyPoints.length > 0 ? Math.floor(bodyFrames / keyPoints.length) : bodyFrames;
+  // Count words to distribute duration proportionally
+  const countWords = (text) => text ? text.split(/\s+/).filter(w => w.length > 0).length : 0;
+  const totalWords = voiceoverSegments.reduce((acc, s) => acc + countWords(s.text), 0);
 
-  // Escape strings for safe JSX interpolation
-  const escapedTitle = escapeJsxString(title);
+  // Distribute frames proportionally to each segment
+  let currentFrame = 0;
+  const synchronizedSegments = voiceoverSegments.map((s, idx) => {
+    const sectionWords = countWords(s.text);
+    // Last segment takes remaining frames to avoid rounding gaps
+    let sectionFrames = idx === voiceoverSegments.length - 1 
+      ? totalFrames - currentFrame 
+      : Math.floor(totalFrames * (sectionWords / totalWords));
+    
+    // Ensure minimum duration for any segment
+    sectionFrames = Math.max(fps * 1.5, sectionFrames);
+    
+    const segment = { ...s, from: currentFrame, duration: sectionFrames };
+    currentFrame += sectionFrames;
+    return segment;
+  });
+
+  // Re-normalize if we exceeded totalFrames due to Math.max
+  const actualTotalFrames = synchronizedSegments.reduce((acc, s) => acc + s.duration, 0);
+  if (actualTotalFrames > totalFrames) {
+    // This is fine, Remotion will just render a longer video if needed
+  }
+
+  // Group segments for UI slides
+  const introSegment = synchronizedSegments.find(s => s.section === 'intro');
+  const problemSegment = synchronizedSegments.find(s => s.section === 'problem');
+  const bodyIntroSegment = synchronizedSegments.find(s => s.section === 'body-intro');
+  const pointSegments = synchronizedSegments.filter(s => s.section === 'body-point');
+  const benefitSegment = synchronizedSegments.find(s => s.section === 'benefit');
+  const conclusionSegment = synchronizedSegments.find(s => s.section === 'conclusion');
+
+  // Generate subtitle sequences
+  const subtitleSequences = synchronizedSegments.map(s => `
+    <Sequence from={${s.from}} durationInFrames={${s.duration}}>
+      <Subtitles text="${escapeJsxString(s.text)}" />
+    </Sequence>`).join('');
+
+  // Generate slide sequences based on segments
+  let introFrames = (introSegment?.duration || 0) + (problemSegment?.duration || 0);
+  if (bodyIntroSegment) introFrames += bodyIntroSegment.duration;
 
   let problemSequence = '';
-  if (story && story.problem) {
-    const escapedProblem = escapeJsxString(typeof story.problem === 'string' ? story.problem : story.problem.text);
+  if (problemSegment) {
     problemSequence = `
-        <Sequence from={${introFrames}} durationInFrames={${problemFrames}}>
-          <ProblemSlide text="${escapedProblem}" />
+        <Sequence from={${problemSegment.from}} durationInFrames={${problemSegment.duration}}>
+          <ProblemSlide text="${escapeJsxString(problemSegment.text)}" />
         </Sequence>`;
   }
 
-  // Generate key point sequences
-  const keyPointSequences = keyPoints.map((point, idx) => {
-    const fromFrame = introFrames + problemFrames + (idx * framesPerPoint);
-    const escapedPoint = escapeJsxString(point);
+  const keyPointSequences = pointSegments.map((s, idx) => {
+    const text = s.originalPoint || s.text;
     return `
-      <Sequence from={${fromFrame}} durationInFrames={${framesPerPoint}}>
-        <KeyPointSlide point="${escapedPoint}" index={${idx + 1}} totalPoints={${keyPoints.length}} />
+      <Sequence from={${s.from}} durationInFrames={${s.duration}}>
+        <KeyPointSlide point="${escapeJsxString(text)}" index={${idx + 1}} totalPoints={${pointSegments.length}} />
       </Sequence>`;
   }).join('\n');
 
   let benefitSequence = '';
-  if (story && story.benefit) {
-    const escapedBenefit = escapeJsxString(typeof story.benefit === 'string' ? story.benefit : story.benefit.text);
+  if (benefitSegment) {
     benefitSequence = `
-        <Sequence from={${introFrames + problemFrames + bodyFrames}} durationInFrames={${benefitFrames}}>
-          <BenefitSlide text="${escapedBenefit}" />
+        <Sequence from={${benefitSegment.from}} durationInFrames={${benefitSegment.duration}}>
+          <BenefitSlide text="${escapeJsxString(benefitSegment.text)}" />
         </Sequence>`;
   }
 
@@ -281,7 +313,7 @@ export const MainComposition = ({ title, keyPoints = [], voiceoverFilename, bran
       <AbsoluteFill style={{ paddingTop: showBranding ? 80 : 0 }}>
         {/* Introduction */}
         <Sequence from={0} durationInFrames={${introFrames}}>
-          <IntroSlide title="${escapedTitle}" showBranding={showBranding} brandName={brandName} />
+          <IntroSlide title="${escapeJsxString(title)}" showBranding={showBranding} brandName={brandName} />
         </Sequence>
         
         {/* Problem Section (V2.0) */}
@@ -294,11 +326,48 @@ export const MainComposition = ({ title, keyPoints = [], voiceoverFilename, bran
         ${benefitSequence}
         
         {/* Conclusion */}
-        <Sequence from={${totalFrames - conclusionFrames}} durationInFrames={${conclusionFrames}}>
+        <Sequence from={${conclusionSegment?.from || 0}} durationInFrames={${conclusionSegment?.duration || totalFrames}}>
           <ConclusionSlide showBranding={showBranding} brandWebsite={brandWebsite} primaryColor={primaryColor} />
         </Sequence>
       </AbsoluteFill>
+
+      {/* Subtitles Overlay */}
+      ${subtitleSequences}
     </AbsoluteFill>
+  );
+};
+
+// Subtitle component for synchronized text
+const Subtitles = ({ text }) => {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        bottom: 60,
+        left: 0,
+        right: 0,
+        display: 'flex',
+        justifyContent: 'center',
+        zIndex: 1000,
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          color: '#facc15', // High contrast yellow
+          padding: '4px 12px',
+          borderRadius: 4,
+          fontSize: 22,
+          fontWeight: '500',
+          textAlign: 'center',
+          maxWidth: '85%',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+          lineHeight: 1.3,
+        }}
+      >
+        {text}
+      </div>
+    </div>
   );
 };
 
@@ -346,8 +415,6 @@ const Header = ({ name, website, color }) => {
 // Introduction slide component
 const IntroSlide = ({ title, showBranding, brandName }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  
   const scale = interpolate(frame, [0, 20], [0.9, 1], {
     easing: Easing.out(Easing.cubic),
   });
@@ -378,7 +445,7 @@ const IntroSlide = ({ title, showBranding, brandName }) => {
         <div
           style={{
             position: 'absolute',
-            bottom: 100,
+            bottom: 150, // Moved up to clear subtitles
             fontSize: 20,
             color: '#64748b',
             opacity: interpolate(frame, [10, 25], [0, 1]),
@@ -425,8 +492,6 @@ const ProblemSlide = ({ text }) => {
 // Key point slide component
 const KeyPointSlide = ({ point, index, totalPoints }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  
   const slideIn = interpolate(frame, [0, 15], [50, 0], { clamp: true });
   const opacity = interpolate(frame, [0, 10], [0, 1], { clamp: true });
   
@@ -512,8 +577,6 @@ const BenefitSlide = ({ text }) => {
 // Conclusion slide component
 const ConclusionSlide = ({ showBranding, brandWebsite, primaryColor }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  
   const opacity = interpolate(frame, [0, 20], [0, 1]);
   const translateY = interpolate(frame, [0, 20], [30, 0], { clamp: true });
   

@@ -334,47 +334,54 @@ function generateConclusion(context, timingMs) {
 function generateVoiceoverScript(context) {
   const { title, description, keyPoints, targetAudience, videoType, story } = context;
 
-  let script = `[INTRO]\n`;
+  const segments = [];
+
+  // Intro
+  let introText = '';
   if (story && story.hook) {
-    script += `${typeof story.hook === 'string' ? story.hook : story.hook.text}\n\n`;
+    introText = typeof story.hook === 'string' ? story.hook : story.hook.text;
   } else {
-    script += `Welcome to AgentFactory. ${capitalizeFirst(description || title)}.\n\n`;
+    introText = `Welcome to AgentFactory. ${capitalizeFirst(description || title)}.`;
   }
+  segments.push({ section: 'intro', text: introText });
 
+  // Problem
   if (story && story.problem) {
-    script += `[PROBLEM]\n`;
-    script += `${typeof story.problem === 'string' ? story.problem : story.problem.text}\n\n`;
+    segments.push({ section: 'problem', text: typeof story.problem === 'string' ? story.problem : story.problem.text });
   }
 
+  // Body
   if (keyPoints && keyPoints.length > 0) {
-    script += `[MAIN CONTENT]\n`;
     const transition = story && story.problem ? "That's why we built this solution. " : "";
-    script += `${transition}In this ${videoType === 'default' ? 'video' : videoType.replace('-', ' ')}, we'll cover ${keyPoints.length} key points:\n\n`;
+    let bodyIntro = `${transition}In this ${videoType === 'default' ? 'video' : videoType.replace('-', ' ')}, we'll cover ${keyPoints.length} key points:`;
+    segments.push({ section: 'body-intro', text: bodyIntro });
 
     keyPoints.forEach((point, index) => {
-      script += `${index + 1}. ${capitalizeFirst(point)}\n`;
+      segments.push({ section: 'body-point', text: `${index + 1}. ${capitalizeFirst(point)}`, originalPoint: point });
     });
-
-    script += `\n`;
   }
 
+  // Benefit
   if (story && story.benefit) {
-    script += `[BENEFITS]\n`;
-    script += `${typeof story.benefit === 'string' ? story.benefit : story.benefit.text}\n\n`;
+    segments.push({ section: 'benefit', text: typeof story.benefit === 'string' ? story.benefit : story.benefit.text });
   }
 
-  script += `[CONCLUSION]\n`;
+  // Conclusion
+  let conclusionText = '';
   if (story && story.cta) {
-    script += `${typeof story.cta === 'string' ? story.cta : story.cta.text}\n`;
+    conclusionText = typeof story.cta === 'string' ? story.cta : story.cta.text;
   } else {
-    script += `That's how AgentFactory empowers ${targetAudience || 'developers'} to build sophisticated AI agents efficiently.\n`;
-    script += `Visit ${BRAND_VOICE.website} to get started today.`;
+    conclusionText = `That's how AgentFactory empowers ${targetAudience || 'developers'} to build sophisticated AI agents efficiently. Visit ${BRAND_VOICE.website} to get started today.`;
   }
+  segments.push({ section: 'conclusion', text: conclusionText });
+
+  const fullScript = segments.map(s => s.text).join('\n\n');
 
   return {
-    full: script,
-    estimatedWords: script.split(/\s+/).length,
-    estimatedSpeakingTime: estimateSpeakingTime(script)
+    full: fullScript,
+    segments,
+    estimatedWords: fullScript.split(/\s+/).length,
+    estimatedSpeakingTime: estimateSpeakingTime(fullScript)
   };
 }
 

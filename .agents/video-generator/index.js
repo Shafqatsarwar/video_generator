@@ -107,6 +107,12 @@ class VideoGeneratorAgent {
         const cleanScript = script.voiceover.full.replace(/\[.*?\]/g, ''); // Remove section markers
         try {
           voiceoverAudio = await generateVoiceover(cleanScript, voiceoverPath);
+          const { getAudioDuration } = require('./voiceover-generator');
+          const actualDuration = await getAudioDuration(voiceoverAudio);
+          if (actualDuration > 0) {
+            console.log(`      Voiceover duration: ${actualDuration.toFixed(1)}s`);
+            specification.duration = actualDuration + 2; // Add a bit of buffer
+          }
           console.log(`      Voiceover generated: ${path.basename(voiceoverAudio)}`);
         } catch (ttsError) {
           console.warn(`      TTS failed, proceeding without voice: ${ttsError.message}`);
