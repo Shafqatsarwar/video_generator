@@ -52,7 +52,7 @@ node generate_architecture_video.js
 To simplify operations for users extending outside of the IDE environment, a comprehensive Next.js frontend has been established. This dashboard provides inputs for scripts, timing boundaries, subtitle preferences, and file uploads.
 
 ### 1. Dashboard Dependencies
-The frontend is built inside the \`excellencelinks-video-ui\` subdirectory. Major packages include:
+The frontend is built inside the \`video-ui-nextjs\` subdirectory. Major packages include:
 - **Next.js 15 (App Router)**: Core framework.
 - **React & React DOM**: For rendering UI elements.
 - **Tailwind CSS v4**: For the glassmorphism aesthetic, brand coloring (`--color-brand-yellow: #facc15`), and responsive layouts.
@@ -61,7 +61,7 @@ The frontend is built inside the \`excellencelinks-video-ui\` subdirectory. Majo
 ### 2. Setup & Installation
 Navigate into the UI folder:
 ```bash
-cd excellencelinks-video-ui
+cd video-ui-nextjs
 
 # Install frontend dependencies
 npm install
@@ -73,7 +73,7 @@ npm run build
 ### 3. Running the Dashboard locally
 To boot up the interactive interface:
 ```bash
-# Inside excellencelinks-video-ui
+# Inside video-ui-nextjs
 npm run dev
 ```
 Open your browser to \`http://localhost:3000\`. Once you submit the payload via the frontend button, it is designed to route parameters back into the Core Generator (Part 1).

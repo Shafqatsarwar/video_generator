@@ -35,7 +35,7 @@ export default function Home() {
         <header className="mb-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2 flex items-center justify-center md:justify-start gap-4">
-              <img src="/Logo Exellence.jpg" alt="Excellence Links Logo" className="h-12 w-12 object-contain rounded-full border-2 border-brand-yellow/50" />
+              <img src="/logo.jpg" alt="Excellence Links Logo" className="h-12 w-12 object-contain rounded-full border-2 border-brand-yellow/50" />
               <span>Excellence <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-yellow to-amber-500">Links</span></span>
             </h1>
             <p className="text-slate-400 text-lg md:text-xl font-medium">Deterministic Video Generation Engine</p>
