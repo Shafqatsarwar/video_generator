@@ -134,7 +134,7 @@ function getQualityValue(quality) {
 async function generateCompositionFiles(bundleDir, spec, config, voiceoverFilename) {
   const resolution = RESOLUTIONS[config.resolution || '1080p'] || RESOLUTIONS['1080p'];
   const fps = config.fps || DEFAULT_FPS;
-  const durationInFrames = (spec.duration || 60) * fps;
+  const durationInFrames = Math.round((spec.duration || 60) * fps);
 
   // Create package.json for the bundle
   const packageJson = {

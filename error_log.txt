@@ -1,0 +1,43 @@
+============================================================
+Starting video generation process...
+============================================================
+Title: Excellence Links: Project Achievement
+Type: product-overview
+Duration: 60s
+
+[1/4] Generating script...
+      Script generated successfully
+      - Intro: NaNs
+      - Body: NaNs
+      - Conclusion: NaNs
+
+[2/4] Generating voiceover (Local Windows TTS)...
+      Voiceover duration: 36.6s
+      Voiceover generated: voiceover_1773441051298.wav
+
+[3/4] Loading assets...
+      Assets loaded: 1 audio file(s)
+
+[4/4] Rendering video...
+Bundling composition...
+Video rendering failed: The "durationInFrames" prop in <Composition id="AgentFactoryDemo"> must be an integer, but got 1158.3.
+D:\Panaverse\Q2\video_generator\node_modules\@remotion\renderer\dist\browser\Connection.js:127
+            callback.reject(rewriteError(new Errors_1.ProtocolError(), `Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`));
+                                         ^
+
+ProtocolError: Protocol error (Target.closeTarget): Target closed. https://www.remotion.dev/docs/target-closed
+    at #onClose (D:\Panaverse\Q2\video_generator\node_modules\@remotion\renderer\dist\browser\Connection.js:127:42)
+    at WebSocket.<anonymous> (D:\Panaverse\Q2\video_generator\node_modules\@remotion\renderer\dist\browser\NodeWebSocketTransport.js:63:30)
+    at callListener (D:\Panaverse\Q2\video_generator\node_modules\ws\lib\event-target.js:290:14)
+    at WebSocket.onClose (D:\Panaverse\Q2\video_generator\node_modules\ws\lib\event-target.js:220:9)
+    at WebSocket.emit (node:events:519:28)
+    at WebSocket.emitClose (D:\Panaverse\Q2\video_generator\node_modules\ws\lib\websocket.js:265:10)
+    at Receiver.receiverOnFinish (D:\Panaverse\Q2\video_generator\node_modules\ws\lib\websocket.js:1200:20)
+    at Receiver.emit (node:events:519:28)
+    at finish (node:internal/streams/writable:955:10)
+    at node:internal/streams/writable:936:13 {
+  code: undefined,
+  originalMessage: ''
+}
+
+Node.js v22.19.0

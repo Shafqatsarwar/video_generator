@@ -76,7 +76,7 @@ async function createScript(specification) {
     title,
     description,
     keyPoints,
-    duration,
+    duration = 60,
     targetAudience,
     videoType = 'default',
     story, // V2.0 Story block
