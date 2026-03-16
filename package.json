@@ -4,14 +4,15 @@
   "description": "Video generator agent for AgentFactory demo videos",
   "main": ".agents/video-generator/index.js",
   "scripts": {
-    "start": "node .agents/video-generator/index.js",
+    "start": "node .agents/video-generator/server.js",
     "test": "jest",
-    "dev": "nodemon .agents/video-generator/index.js"
+    "dev": "nodemon .agents/video-generator/server.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@remotion/bundler": "^4.0.0",
     "@remotion/renderer": "^4.0.0",
+    "cors": "^2.8.6",
     "express": "^4.18.0",
     "ffmpeg-static": "^5.0.0",
     "puppeteer": "^22.0.0",

@@ -28,11 +28,11 @@ npm install -g ffmpeg-static
 ```
 
 ### 3. Core File Structure
-- \`.agents/video-generator/index.js\`: The master orchestrator (Node Agent) triggering the steps.
+- \`.agents/video-generator/index.js\`: The master orchestrator (Node Agent) with parameter validation and performance scoring.
 - \`.agents/video-generator/script-generator.js\`: Handles slicing input text into exact segments.
-- \`.agents/video-generator/voiceover-generator.js\`: Interfaces with Windows local TTS via PowerShell.
+- \`.agents/video-generator/voiceover-generator.js\`: Multi-provider interface (Local TTS, OpenAI, ElevenLabs).
 - \`.agents/video-generator/renderer.js\`: Builds the React composition and bundles it into an MP4 file.
-- \`.agents/video-generator/local-tts.ps1\`: The PowerShell script enforcing the 'Female' voiceover parameter.
+- \`.agents/video-generator/local-tts.ps1\`: PowerShell script for selecting Windows voice gender (Male/Female).
 
 ### 4. Running a Test Video
 To test the core deterministic pipeline entirely offline:
@@ -105,21 +105,29 @@ The engine is designed to be utilized as an AI "Skill" by an external agent. You
 const { VideoGeneratorAgent } = require('./.agents/video-generator/index');
 
 const agent = new VideoGeneratorAgent();
-await agent.generateDemoVideo({
+const result = await agent.generateDemoVideo({
   title: "My Awesome Demo",
   duration: 60,
   keyPoints: ["Feature 1", "Feature 2"],
-  story: {
-    hook: "The problem with traditional tools...",
-    problem: "It takes too long.",
-    benefit: "Our solution is 10x faster."
+  voiceover: {
+    provider: 'openai', // Optional: local, openai, elevenlabs
+    voice: 'alloy'
   }
 });
+
+console.log(`Video generated with Accuracy: ${result.assessment.accuracy * 100}%`);
 ```
 
 ## 🎙 Voiceover System Context (Offline vs Online)
-- **Offline (Default Active)**: Relies on the Windows PowerShell `SpeechSynthesizer` assembly to generate `.wav` files. No internet required.
-- **Online (LLM - Deprecated/Disabled in current template)**: To fully switch to external APIs like OpenAI TTS-1, you would need to adjust the `voiceover-generator.js` and provide `OPENAI_API_KEY`. The current build favors Offline Deterministic TTS for consistent synchronization testing.
+- **Offline (Hybrid Native)**: Uses Windows PowerShell `SpeechSynthesizer`. Reliable, zero-cost, and fast. Support for Male/Female gender selection.
+- **Online (Premium APIs)**: The engine now natively supports **OpenAI (tts-1)** and **ElevenLabs**. To use them, ensure `OPENAI_API_KEY` or `ELEVENLABS_API_KEY` is present in your `.env` and configure the `provider` in your generation call.
+- **Auto-Sync**: The engine automatically measures audio duration and stretches the video composition to ensure perfect synchronization between voice and visuals.
+
+## 📊 Evaluation & Metrics
+The engine now outputs a self-assessment after every run:
+- **Accuracy**: Measure of specification fulfillment (e.g., matching title and duration).
+- **Performance**: Ratio of render time to video duration (Target: <4x).
+- **Usability**: Score based on the complexity and completeness of input parameters.
 
 ## 📝 Example Prompts for the AI Agent Supervisor
 Once the supervisor is fully implemented, here are example prompts you could feed to the dashboard or agent:

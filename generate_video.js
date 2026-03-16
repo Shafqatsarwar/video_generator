@@ -14,7 +14,7 @@ async function main() {
       "High Performance Rendering"
     ],
     videoType: "product-overview",
-    useAI: false,
+    useAI: true,
     branding: {
       name: "Excellence Links",
       website: "excellencelinks.com",

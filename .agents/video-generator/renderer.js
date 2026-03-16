@@ -62,7 +62,8 @@ async function renderVideo(compositionSpec, config) {
         title: compositionSpec.title,
         keyPoints: compositionSpec.keyPoints,
         duration: compositionSpec.duration,
-        targetAudience: compositionSpec.targetAudience
+        targetAudience: compositionSpec.targetAudience,
+        subtitles: compositionSpec.subtitles
       }
     });
 
@@ -167,7 +168,8 @@ const RemotionRoot = () => {
           title: "${spec.title.replace(/"/g, '\\"')}",
           keyPoints: ${JSON.stringify(spec.keyPoints)},
           voiceoverFilename: ${voiceoverFilename ? `"${voiceoverFilename}"` : 'null'},
-          branding: ${JSON.stringify(spec.branding || config.branding || {})}
+          branding: ${JSON.stringify(spec.branding || config.branding || {})},
+          subtitles: ${JSON.stringify(spec.subtitles || { language: 'english' })}
         }}
       />
     </>
@@ -283,11 +285,12 @@ import React from 'react';
 import { AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig, interpolate, Easing, Audio, staticFile } from 'remotion';
 
 // Main composition exported for Remotion
-export const MainComposition = ({ title, keyPoints = [], voiceoverFilename, branding = {} }) => {
+export const MainComposition = ({ title, keyPoints = [], voiceoverFilename, branding = {}, subtitles = { language: 'english' } }) => {
   const brandName = branding.name || 'AgentFactory';
   const brandWebsite = branding.website || 'agentfactory.panaversity.org';
   const primaryColor = branding.primaryColor || '#2563eb';
   const showBranding = branding.showBranding !== false;
+  const isUrdu = subtitles.language === 'urdu';
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#ffffff' }}>
@@ -332,13 +335,18 @@ export const MainComposition = ({ title, keyPoints = [], voiceoverFilename, bran
       </AbsoluteFill>
 
       {/* Subtitles Overlay */}
-      ${subtitleSequences}
+      <AbsoluteFill>
+         {${synchronizedSegments.map(s => `
+          <Sequence from={${s.from}} durationInFrames={${s.duration}}>
+            <Subtitles text="${escapeJsxString(s.text)}" isUrdu={isUrdu} />
+          </Sequence>`).join('')}}
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
 
 // Subtitle component for synchronized text
-const Subtitles = ({ text }) => {
+const Subtitles = ({ text, isUrdu }) => {
   return (
     <div
       style={{
@@ -349,20 +357,22 @@ const Subtitles = ({ text }) => {
         display: 'flex',
         justifyContent: 'center',
         zIndex: 1000,
+        direction: isUrdu ? 'rtl' : 'ltr',
       }}
     >
       <div
         style={{
           backgroundColor: 'rgba(0, 0, 0, 0.75)',
           color: '#facc15', // High contrast yellow
-          padding: '4px 12px',
+          padding: '4px 16px',
           borderRadius: 4,
-          fontSize: 22,
+          fontSize: isUrdu ? 32 : 24,
           fontWeight: '500',
           textAlign: 'center',
           maxWidth: '85%',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-          lineHeight: 1.3,
+          lineHeight: 1.4,
+          fontFamily: isUrdu ? 'serif' : 'sans-serif',
         }}
       >
         {text}

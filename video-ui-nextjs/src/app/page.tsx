@@ -12,19 +12,63 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const handleGenerate = () => {
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGenerate = async () => {
     setIsGenerating(true);
     setProgress(0);
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => setIsGenerating(false), 500);
-          return 100;
-        }
-        return prev + 5;
+    setError(null);
+    setResultUrl(null);
+
+    // Initial progress simulation (Preparing)
+    const progInterval = setInterval(() => {
+      setProgress((prev) => (prev < 30 ? prev + 2 : prev));
+    }, 500);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: "Excellence Links Video",
+          description: textInput || "Generated from UI Dashboard",
+          keyPoints: ["Generated via Excellence Links Engine"],
+          videoType: "product-overview",
+          duration: parseInt(duration),
+          voiceover: {
+            enabled: true,
+            voice: voice // Sends 'male' or 'female'
+          },
+          subtitles: {
+            language: subtitles
+          },
+          useAI: true,
+          branding: {
+            name: "Excellence Links",
+            website: "excellencelinks.com",
+            primaryColor: "#facc15"
+          }
+        }),
       });
-    }, 200);
+
+      clearInterval(progInterval);
+      setProgress(50);
+
+      const data = await response.json();
+      
+      if (!data.success) throw new Error(data.error || 'Generation failed');
+
+      // Final progress stretch
+      setProgress(100);
+      setResultUrl(data.url);
+      setTimeout(() => setIsGenerating(false), 500);
+    } catch (err: any) {
+      clearInterval(progInterval);
+      setError(err.message);
+      setIsGenerating(false);
+      console.error('Generation failed:', err);
+    }
   };
 
   return (
@@ -63,8 +107,12 @@ export default function Home() {
                   {['30', '60', '120'].map((val) => (
                     <button
                       key={val}
+                      type="button"
                       onClick={() => setDuration(val)}
-                      className={"py-2 rounded-lg text-sm font-medium transition-all duration-200 " + (duration === val ? 'bg-brand-yellow text-slate-900 shadow-[0_0_15px_rgba(250,204,21,0.3)]' : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700/50')}
+                      className={"py-2.5 rounded-xl text-sm font-bold transition-all duration-300 border " + 
+                        (duration === val 
+                          ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
+                          : 'bg-slate-800/40 text-slate-400 border-slate-700/50 hover:border-slate-500 hover:bg-slate-700/40')}
                     >
                       {val}s
                     </button>
@@ -80,8 +128,12 @@ export default function Home() {
                   {['female', 'male'].map((val) => (
                     <button
                       key={val}
+                      type="button"
                       onClick={() => setVoice(val)}
-                      className={"py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200 " + (voice === val ? 'bg-brand-yellow text-slate-900 shadow-[0_0_15px_rgba(250,204,21,0.3)]' : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700/50')}
+                      className={"py-2.5 rounded-xl text-sm font-bold capitalize transition-all duration-300 border " + 
+                        (voice === val 
+                          ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
+                          : 'bg-slate-800/40 text-slate-400 border-slate-700/50 hover:border-slate-500 hover:bg-slate-700/40')}
                     >
                       {val}
                     </button>
@@ -98,8 +150,12 @@ export default function Home() {
                   {['english', 'urdu'].map((val) => (
                     <button
                       key={val}
+                      type="button"
                       onClick={() => setSubtitles(val)}
-                      className={"py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200 " + (subtitles === val ? 'bg-brand-yellow text-slate-900 shadow-[0_0_15px_rgba(250,204,21,0.3)]' : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700/50')}
+                      className={"py-2.5 rounded-xl text-sm font-bold capitalize transition-all duration-300 border " + 
+                        (subtitles === val 
+                          ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
+                          : 'bg-slate-800/40 text-slate-400 border-slate-700/50 hover:border-slate-500 hover:bg-slate-700/40')}
                     >
                       {val}
                     </button>
@@ -192,6 +248,35 @@ export default function Home() {
                         style={{ width: progress + '%' }}
                       />
                     </div>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/50 text-red-400 text-sm font-medium">
+                    Error: {error}
+                  </div>
+                )}
+
+                {resultUrl && (
+                  <div className="mt-6 p-6 rounded-xl bg-emerald-500/10 border border-emerald-500/50 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-emerald-500/20">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                      </div>
+                      <div>
+                        <p className="text-white font-bold">Video Generated!</p>
+                        <p className="text-emerald-400/70 text-sm">Your trial video is ready.</p>
+                      </div>
+                    </div>
+                    <a 
+                      href={resultUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-6 py-2 rounded-lg bg-emerald-500 text-slate-900 font-bold hover:bg-emerald-400 transition-colors flex items-center gap-2"
+                    >
+                      <Play className="w-4 h-4 fill-current" />
+                      Watch Now
+                    </a>
                   </div>
                 )}
               </div>

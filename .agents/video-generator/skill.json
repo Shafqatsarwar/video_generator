@@ -1,0 +1,19 @@
+{
+  "name": "excellence-video-generator",
+  "version": "1.2.0",
+  "description": "Deterministic & AI-Enhanced Video Generation Engine with multi-provider TTS and performance metrics.",
+  "author": "Antigravity",
+  "entrypoint": "./index.js",
+  "parameters": {
+    "title": "string",
+    "duration": "number",
+    "videoType": "string (tutorial, product-overview, etc.)",
+    "keyPoints": "string[]",
+    "voiceover": {
+      "provider": "local | openai | elevenlabs",
+      "gender": "Male | Female"
+    },
+    "useAI": "boolean"
+  },
+  "metrics": ["accuracy", "performance", "reliability"]
+}
