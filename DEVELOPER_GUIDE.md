@@ -1,137 +1,99 @@
-# Excellence Links Video Generator - Developer Guide
+# 🎥 Excellence Links | Video Generation Engine V2.0
 
-Welcome to the Excellence Links Video Generator documentation. This system is designed as a sophisticated, dual-layered architecture focusing on deterministic, offline-capable logic for rendering high-quality videos, with the optional capability to connect an LLM supervisor.
-
-This guide provides a comprehensive overview of the two main parts of the project, including setup commands, required packages, and operational principles.
+Welcome to the ultimate guide for the Excellence Links Video Generator. This project has been polished into a high-skill, dual-mode engine that works flawlessly both **with and without LLMs**.
 
 ---
 
-## Part 1: Core Video Generation Engine (Terminal/Logic Mode)
+## 🚀 Quick Start (Commands)
 
-The core engine is entirely responsible for taking raw data (script, timing, branding, assets) and algorithmically producing an `.mp4` video. It uses deterministic word-counting algorithms to map screen time per visual section, strictly adhering to offline capabilities via local Windows TTS.
-
-### 1. Engine Dependencies
-The core relies heavily on Node.js and the following major packages:
-- **@remotion/renderer & @remotion/bundler**: For translating React components into Chromium-rendered video frames.
-- **ffmpeg-static**: To accurately measure audio durations and bundle final media.
-- **puppeteer**: Specifically used by Remotion's rendering pipeline.
-- **@google/generative-ai** (Optional): A bridge package used only if dynamic LLM story enhancement is requested (`useAI: true`).
-
-### 2. Setup & Installation
-Ensure you are in the root directory: \`D:\\Panaverse\\Q2\\video_generator\`
+### 1. Initial Setup
 ```bash
-# Install core dependencies
+# Install all core dependencies
 npm install
 
-# (Optional) Ensure global dependencies if ffmpeg is causing path issues
-npm install -g ffmpeg-static
+# Setup environment
+copy .env.example .env
+# Edit .env and add your GOOGLE_API_KEY if you want AI features
 ```
 
-### 3. Core File Structure
-- \`.agents/video-generator/index.js\`: The master orchestrator (Node Agent) with parameter validation and performance scoring.
-- \`.agents/video-generator/script-generator.js\`: Handles slicing input text into exact segments.
-- \`.agents/video-generator/voiceover-generator.js\`: Multi-provider interface (Local TTS, OpenAI, ElevenLabs).
-- \`.agents/video-generator/renderer.js\`: Builds the React composition and bundles it into an MP4 file.
-- \`.agents/video-generator/local-tts.ps1\`: PowerShell script for selecting Windows voice gender (Male/Female).
-
-### 4. Running a Test Video
-To test the core deterministic pipeline entirely offline:
+### 2. Run with UI (Dashboard Mode)
 ```bash
-# Execute the base template trigger
-node generate_video.js
+# Start the Backend API (Port 3001)
+npm run dev
 
-# Execute the architecture explanatory video trigger
-node generate_architecture_video.js
-```
-*Note: Successful runs will output the finalized `.mp4` into the `/output` folder.*
-
----
-
-## Part 2: Next.js Graphical Dashboard (Desktop/Web UI)
-
-To simplify operations for users extending outside of the IDE environment, a comprehensive Next.js frontend has been established. This dashboard provides inputs for scripts, timing boundaries, subtitle preferences, and file uploads.
-
-### 1. Dashboard Dependencies
-The frontend is built inside the \`video-ui-nextjs\` subdirectory. Major packages include:
-- **Next.js 15 (App Router)**: Core framework.
-- **React & React DOM**: For rendering UI elements.
-- **Tailwind CSS v4**: For the glassmorphism aesthetic, brand coloring (`--color-brand-yellow: #facc15`), and responsive layouts.
-- **Lucide React**: For scalable, modern icons.
-
-### 2. Setup & Installation
-Navigate into the UI folder:
-```bash
+# Start the Frontend Dashboard (Port 3000)
 cd video-ui-nextjs
-
-# Install frontend dependencies
-npm install
-
-# Force a local build to ensure clean syntaxes
-npm run build
-```
-
-### 3. Running the Dashboard locally
-To boot up the interactive interface:
-```bash
-# Inside video-ui-nextjs
 npm run dev
 ```
-Open your browser to \`http://localhost:3000\`. Once you submit the payload via the frontend button, it is designed to route parameters back into the Core Generator (Part 1).
 
----
+### 3. Run with Terminal (Logic Only Mode)
+```bash
+# Generate a standard trial video
+node generate_video.js
 
-## Future Implementation: Agent Supervisor Layer
-We are preparing to introduce a master **LLM Agent Supervisor** bridging Part 1 and Part 2.
-- **Goal**: When a user inputs a vague prompt into the Next.js UI, the LLM Supervisor will intelligently split the content into the exact JSON mapping required by the Node Generator (e.g., extracting "key points", generating "descriptions").
-- **Offline Logic Maintained**: The LLM will ONLY structure the data. Audio generation, frame pacing, and visual rendering will remain strictly mathematical and deterministic offline (via local-TTS and Remotion bounds) ensuring robust performance regardless of LLM server status.
-
-### Environment Management
-To activate the LLM Supervisor layer, a Google Gemini API Key has been configured in the local \`.env\` file.
-
-**Environment Variables Setup:**
-Create a \`.env\` file in the project root containing:
-```env
-GOOGLE_API_KEY="AIzaSyBrUsdXtrNSYUD5ILprpoLCu3JI8nfc2L8"
+# Generate an architecture-specific video
+node generate_architecture_video.js
 ```
-The \`process.env.GOOGLE_API_KEY\` is read by \`script-generator.js\` to initialize the \`GoogleGenerativeAI\` client. If missing or disconnected, the system safely falls back to standard logic matching.
 
 ---
 
-## 🧩 Using the Agent Skill (Advanced)
+## 🕵️‍♂️ Hidden Tactics & Advanced Features
 
-The engine is designed to be utilized as an AI "Skill" by an external agent. You can trigger it with a structured specification object:
+### 💻 Tactic 1: Instant Desktop Delivery
+We have included a "Fast-Track" script that generates a video and automatically delivers it to your Desktop, bypassing the browser.
+```bash
+node test_and_copy_to_desktop.js
+```
 
+### 🔄 Tactic 2: Dual-Mode Operation (LLM vs Deterministic)
+The engine is "Dual-Skilled". It detects its environment automatically:
+- **LLM Mode (Online)**: If `GOOGLE_API_KEY` is present, it uses Gemini to rewrite your script into a professional "Hook-Problem-Demo-CTA" story structure.
+- **Deterministic Mode (Offline)**: If the API is missing or `useAI` is `false`, it uses a mathematical template system to map your text directly to scene durations, ensuring 100% reliability without internet.
+
+### 🎙 Tactic 3: Multi-Provider Voice Selection
+You can toggle between local and premium voices by changing the `voiceover.provider` in your API request or code:
+- `local`: Uses Windows Native TTS (Free, Offline, Male/Female).
+- `openai`: Uses OpenAI TTS-1 (`alloy`, `echo`, `fable`, etc.).
+- `elevenlabs`: Uses high-fidelity ElevenLabs voices.
+
+### ⏳ Tactic 4: Precision Waveform Syncing
+Unlike basic generators, this engine **actually listens** to the generated audio file. It calculates the exact millisecond duration and dynamically stretches or shrinks the video timeline so that subtitles and visuals never drift out of sync.
+
+### 🛡 Tactic 5: RTL / Urdu Subtitles
+The engine is specialized for Urdu/English localization. When `subtitles.language` is set to `urdu`:
+- Text direction flips to **RTL** (Right-to-Left).
+- Font family switches to a highly readable **Serif** face.
+- Font size is automatically increased for complex script clarity.
+
+---
+
+## 📊 Evaluation Metrics
+After every generation, the engine performs a "Self-Assessment":
+- **Accuracy**: Did the video title and duration meet the target specification?
+- **Performance**: Was the render time efficient? (Target: < 4 seconds of render per 1 second of video).
+- **Usability**: Did the provided parameters allow for a high-quality output?
+
+---
+
+## 📦 File Structure (Cleaned & Polished)
+- `.agents/video-generator/`: The brain of the project.
+  - `index.js`: Orchestrator & Metric Scorer.
+  - `renderer.js`: React-to-Video engine (Remotion).
+  - `voiceover-generator.js`: The provider-aware TTS engine.
+- `video-ui-nextjs/`: The premium React dashboard.
+- `output/`: Local storage for your generated hits.
+
+---
+
+## 📝 Example Advanced Trigger
 ```javascript
-const { VideoGeneratorAgent } = require('./.agents/video-generator/index');
-
 const agent = new VideoGeneratorAgent();
-const result = await agent.generateDemoVideo({
-  title: "My Awesome Demo",
-  duration: 60,
-  keyPoints: ["Feature 1", "Feature 2"],
-  voiceover: {
-    provider: 'openai', // Optional: local, openai, elevenlabs
-    voice: 'alloy'
-  }
+await agent.generateDemoVideo({
+  title: "AI Revolution",
+  duration: 45,
+  voiceover: { provider: 'local', gender: 'Female' },
+  subtitles: { language: 'english' }
 });
-
-console.log(`Video generated with Accuracy: ${result.assessment.accuracy * 100}%`);
 ```
 
-## 🎙 Voiceover System Context (Offline vs Online)
-- **Offline (Hybrid Native)**: Uses Windows PowerShell `SpeechSynthesizer`. Reliable, zero-cost, and fast. Support for Male/Female gender selection.
-- **Online (Premium APIs)**: The engine now natively supports **OpenAI (tts-1)** and **ElevenLabs**. To use them, ensure `OPENAI_API_KEY` or `ELEVENLABS_API_KEY` is present in your `.env` and configure the `provider` in your generation call.
-- **Auto-Sync**: The engine automatically measures audio duration and stretches the video composition to ensure perfect synchronization between voice and visuals.
-
-## 📊 Evaluation & Metrics
-The engine now outputs a self-assessment after every run:
-- **Accuracy**: Measure of specification fulfillment (e.g., matching title and duration).
-- **Performance**: Ratio of render time to video duration (Target: <4x).
-- **Usability**: Score based on the complexity and completeness of input parameters.
-
-## 📝 Example Prompts for the AI Agent Supervisor
-Once the supervisor is fully implemented, here are example prompts you could feed to the dashboard or agent:
-
-> "Generate a 60-second product overview video about our new CRM tool. The title is 'CRM Pro'. Key points should include Lead Tracking, Automated Outreach, and AI Insights. Use a professional tone with a strong CTA."
-
-> "Create a technical tutorial video focusing on 'How to install the Agent Factory package'. Do not show branding headers."
+*Excellence Links: Polished, Professional, and Ready to Ship.*

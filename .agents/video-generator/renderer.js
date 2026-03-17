@@ -336,10 +336,10 @@ export const MainComposition = ({ title, keyPoints = [], voiceoverFilename, bran
 
       {/* Subtitles Overlay */}
       <AbsoluteFill>
-         {${synchronizedSegments.map(s => `
+         ${synchronizedSegments.map(s => `
           <Sequence from={${s.from}} durationInFrames={${s.duration}}>
             <Subtitles text="${escapeJsxString(s.text)}" isUrdu={isUrdu} />
-          </Sequence>`).join('')}}
+          </Sequence>`).join('')}
       </AbsoluteFill>
     </AbsoluteFill>
   );
